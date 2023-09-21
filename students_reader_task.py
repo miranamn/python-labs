@@ -9,50 +9,40 @@ STUDENT_KEYS = ("unique_id", "name", "surname", "group", "subgroup", "lab_works_
 
 
 class LabWorkSession(namedtuple('LabWorkSession', 'presence, lab_work_number, lab_work_mark, lab_work_date')):
-    """
-    Информация о лабораторном занятии, которое могло или не могло быть посещено студентом
-    """
-
     def __new__(cls, presence: bool, lab_work_number: int, lab_work_mark: int, lab_work_date: date):
-        """
-            param: presence: присутствие студента на л.р.(bool)
-            param: lab_work_number: номер л.р.(int)
-            param: lab_work_mark: оценка за л.р.(int)
-            param: lab_work_date: дата л.р.(date)
-        """
-        if LabWorkSession._validate_session(...):
-            ...
+        cls._presence: bool = False
+        cls._lab_work_number: int = -1
+        cls._lab_work_mark: int = -1
+        cls._lab_work_date: Union[date, None] = None
 
-        raise ValueError(f"LabWorkSession ::"
-                         f"incorrect args :\n"
-                         f"presence       : {presence},\n"
-                         f"lab_work_number: {lab_work_number},\n"
-                         f"lab_work_mark  : {lab_work_mark},\n"
-                         f"lab_work_date  : {lab_work_date}")
+        if LabWorkSession._validate_session(presence, lab_work_number, lab_work_mark, lab_work_date):
+            raise ValueError(f"LabWorkSession ::"
+                             f"incorrect args :\n"
+                             f"presence       : {presence},\n"
+                             f"lab_work_number: {lab_work_number},\n"
+                             f"lab_work_mark  : {lab_work_mark},\n"
+                             f"lab_work_date  : {lab_work_date}")
 
     @staticmethod
-    def _validate_session(presence: bool, lab_work_number: int, lab_work_mark: int, lab_work_date: date) -> bool:
-        """
-            param: presence: присутствие студента на л.р.(bool)
-            param: lab_work_number: номер л.р.(int)
-            param: lab_work_mark: оценка за л.р.(int)
-            param: lab_work_date: дата л.р.(date)
-        """
-
-        return True
+    def _validate_session(self, presence: bool, lab_work_number: int, lab_work_mark: int, lab_work_date: date) -> bool:
+        if not presence and (lab_work_number != -1 or lab_work_mark != -1 or lab_work_date is not None):
+            return False
+        elif lab_work_mark * lab_work_number < 0:
+            return False
+        else:
+            self._presence = presence
+            self._lab_number = lab_work_number
+            self._lab_mark = lab_work_mark
+            self._lab_date = lab_work_date
+            return True
 
     def __str__(self) -> str:
-        """
-            Строковое представление LabWorkSession
-            Пример:
-            {
-                    "presence":      1,
-                    "lab_work_n":    4,
-                    "lab_work_mark": 3,
-                    "date":          "15:12:23"
-            }
-        """
-        ...
+        return "\t\t{\n"\
+                f"\t\t\t\"presence\": {1 if self._presence else 0},\n"\
+                f"\t\t\t\"number\":   {self._lab_number},\n" \
+                f"\t\t\t\"mark\":     {self._lab_mark},\n" \
+                f"\t\t\t\"date\":     \"{self._lab_date.day}:{self._lab_date.month}:{self._lab_date.year}\"\n" \
+               "\t\t}"
 
 
 class Student:
