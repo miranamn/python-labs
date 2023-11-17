@@ -12,6 +12,12 @@ class LabWorkSession(namedtuple('LabWorkSession', 'lab_work_date, presence, lab_
     def __new__(cls, lab_work_date: date, presence: bool, lab_work_number: int, lab_work_mark: int):
         if LabWorkSession._validate_args(lab_work_date, presence, lab_work_number, lab_work_mark):
             return super().__new__(cls, lab_work_date, presence, lab_work_number, lab_work_mark)
+        raise ValueError(f"LabWorkSession ::"
+                         f"incorrect args :\n"
+                         f"presence       : {presence},\n"
+                         f"lab_work_number: {lab_work_number},\n"
+                         f"lab_work_mark  : {lab_work_mark},\n"
+                         f"lab_work_date  : {lab_work_date}")
 
     @staticmethod
     def _validate_args(lab_work_date: date, presence: bool, lab_work_number: int, lab_work_mark: int) -> bool:
@@ -35,7 +41,13 @@ class Student:
 
     def __init__(self, unique_id: int, name: str, surname: str, group: int, subgroup: int):
         if not Student._validate_args(unique_id, name, surname, group, subgroup):
-            raise ValueError()
+            raise ValueError(f"Student ::"
+                             f"incorrect args :\n"
+                             f"unique_id       : {unique_id},\n"
+                             f"name             : {name},\n"
+                             f"_surname         : {surname},\n"
+                             f"group            : {group},\n"
+                             f"subgroup        : {subgroup}")
         self._unique_id = unique_id
         self._name = name
         self._surname = surname
@@ -126,8 +138,8 @@ def _load_student(json_node) -> Student:
     for lw in json_node["lab_works_sessions"]:
         try:
             student.append_lab_work_session(_load_lab_work_session(lw))
-        except Exception:
-            print("lab_works_session Exception")
+        except Exception as ex:
+            print(f"lab_works_session Exception::{ex}")
             continue
     return student
 
@@ -169,8 +181,8 @@ def load_students_csv(file_path: str) -> Union[List[Student], None]:
                                    True if int(s_line[STUD_PRESENCE]) == 1 else False,
                                    int(s_line[LAB_WORK_NUMBER]),
                                    int(s_line[LAB_WORK_MARK])))
-            except Exception:
-                print("Ошибка чтения")
+            except Exception as ex:
+                print(f"Csv read error as {ex}:")
                 continue
     return list(students.values())
 
@@ -187,8 +199,8 @@ def load_students_json(file_path: str) -> Union[List[Student], None]:
         for node in json_node['students']:
             try:
                 students.append(_load_student(node))
-            except Exception:
-                print("Ошибка загрузки")
+            except Exception as ex:
+                print(f"json load error as {ex}:")
                 continue
     return students
 
@@ -216,18 +228,18 @@ def save_students_csv(file_path: str, students: List[Student]):
 
 if __name__ == '__main__':
     print("JSON")
-    #students = load_students_json('students.json')
+    # students = load_students_json('students.json')
     # for s in students:
     # print(s)
-    #save_students_json('students_saved.json', students)
-    #students1 = load_students_json('students_saved.json')
+    # save_students_json('students_saved.json', students)
+    # students1 = load_students_json('students_saved.json')
     # for s in students1:
     # print(s)
     print("__________________________________________")
     print("CSV")
     students2 = load_students_csv('students.csv')
-    #for s in students2:
-        #print(s)
+    # for s in students2:
+    # print(s)
     save_students_csv('students_saved.csv', students2)
     students3 = load_students_csv('students_saved.csv')
     for s in students3:
